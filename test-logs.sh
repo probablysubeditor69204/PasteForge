@@ -7,8 +7,9 @@ PORT="99"
 echo "Generating sample logs and pasting to PasteForge..."
 echo ""
 
-# Generate sample log output
-cat <<EOF | nc "$SERVER" "$PORT"
+# Generate sample log output and pipe to netcat with timeout
+{
+cat <<EOF
 [$(date +%Y-%m-%d\ %H:%M:%S)] INFO: Application started
 [$(date +%Y-%m-%d\ %H:%M:%S)] INFO: Database connection established
 [$(date +%Y-%m-%d\ %H:%M:%S)] WARN: High memory usage detected: 85%
@@ -24,4 +25,8 @@ cat <<EOF | nc "$SERVER" "$PORT"
 [$(date +%Y-%m-%d\ %H:%M:%S)] INFO: Connection restored
 [$(date +%Y-%m-%d\ %H:%M:%S)] INFO: Background job completed: job_id=5678
 EOF
+} | timeout 10 nc "$SERVER" "$PORT" || echo "Connection timeout or failed"
+
+echo ""
+echo "Done!"
 

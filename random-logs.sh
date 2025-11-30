@@ -32,9 +32,9 @@ MESSAGES=(
         LEVEL=${LEVELS[$RANDOM % ${#LEVELS[@]}]}
         MESSAGE=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
         echo "[$(date +%Y-%m-%d\ %H:%M:%S)] $LEVEL: $MESSAGE"
-        sleep 0.1
     done
-} | nc "$SERVER" "$PORT"
+} | timeout 10 nc "$SERVER" "$PORT" || echo "Connection timeout or failed"
 
+echo ""
 echo "Random logs pasted!"
 
