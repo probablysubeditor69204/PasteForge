@@ -30,6 +30,11 @@ Public REST API:
 - `POST /api/paste/:id/verify` — Verify password
 - `DELETE /api/paste/:id` — Delete paste
 
+**Netcat Support:**
+- Pipe logs directly via netcat: `tail -f logfile | nc your-server 99`
+- Returns paste URL automatically
+- Perfect for sharing logs, errors, and terminal output
+
 ## 🚀 Quick Start
 
 ### Using Docker (Recommended)
@@ -58,6 +63,7 @@ Public REST API:
 4. **Access the application**
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:3000
+   - Netcat: `nc localhost 99` (for piping logs)
    - Health check: http://localhost:3000/health
    
    **Note:** If port 80 is already in use, the frontend will run on port 8080. You can change this in `docker-compose.yml`.
