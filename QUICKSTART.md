@@ -7,6 +7,29 @@ Get PasteForge running in 5 minutes!
 - Docker and Docker Compose installed
 - OR Node.js 20+ and Redis installed
 
+### Installing Docker Compose
+
+If you get `Command 'docker-compose' not found`, you have two options:
+
+**Option 1: Install docker-compose (standalone)**
+```bash
+# For Ubuntu/Debian
+sudo apt update
+sudo apt install docker-compose
+
+# Or using pip
+sudo pip3 install docker-compose
+```
+
+**Option 2: Use Docker Compose V2 (recommended)**
+```bash
+# Modern Docker includes 'docker compose' (no hyphen)
+# Just use 'docker compose' instead of 'docker-compose'
+docker compose up -d
+```
+
+**Note:** If you have Docker Engine 20.10+, you can use `docker compose` (V2) instead of `docker-compose` (V1). The commands are the same, just replace `docker-compose` with `docker compose`.
+
 ## Option 1: Docker (Easiest)
 
 ```bash

@@ -47,8 +47,13 @@ Public REST API:
 
 3. **Start with Docker Compose**
    ```bash
+   # Use 'docker compose' (V2) or 'docker-compose' (V1)
+   docker compose up -d
+   # OR
    docker-compose up -d
    ```
+   
+   **Note:** If you get `Command 'docker-compose' not found`, try `docker compose` (no hyphen) which is included in newer Docker versions. Alternatively, install it with `sudo apt install docker-compose`.
 
 4. **Access the application**
    - Frontend: http://localhost
