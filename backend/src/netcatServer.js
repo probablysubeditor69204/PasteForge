@@ -47,7 +47,7 @@ const server = net.createServer((socket) => {
     try {
       if (!data || data.trim().length === 0) {
         socket.write('Error: Empty content\n');
-        socket.end();
+        socket.destroy();
         return;
       }
       
@@ -67,12 +67,17 @@ const server = net.createServer((socket) => {
       const url = `${baseUrl}/${result.id}\n`;
       
       socket.write(url);
-      socket.end();
+      socket.destroy();
     } catch (error) {
       console.error('Netcat paste error:', error);
       socket.write(`Error: ${error.message}\n`);
-      socket.end();
+      socket.destroy();
     }
+  });
+  
+  // Handle connection close
+  socket.on('close', () => {
+    // Connection closed
   });
   
   socket.on('timeout', () => {
