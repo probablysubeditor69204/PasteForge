@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue.svg)](https://github.com/probablysubeditor69204/PasteForge)
 
 PasteForge is a modern, open-source **Pastebin + Code Share** platform built for developers. It is lightweight, fast, Docker-ready, and designed to be self-hosted with zero bloat.
 
@@ -35,8 +36,8 @@ Public REST API:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/pasteforge.git
-   cd pasteforge
+   git clone https://github.com/probablysubeditor69204/PasteForge.git
+   cd PasteForge
    ```
 
 2. **Set environment variables** (optional)

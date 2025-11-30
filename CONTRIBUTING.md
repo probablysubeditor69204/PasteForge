@@ -5,7 +5,7 @@ Thank you for your interest in contributing to PasteForge! 🎉
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/pasteforge.git`
+2. Clone your fork: `git clone https://github.com/probablysubeditor69204/PasteForge.git`
 3. Create a branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Test your changes

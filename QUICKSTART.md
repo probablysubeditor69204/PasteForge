@@ -11,8 +11,8 @@ Get PasteForge running in 5 minutes!
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo-url>
-cd pasteforge
+git clone https://github.com/probablysubeditor69204/PasteForge.git
+cd PasteForge
 
 # 2. Start all services
 docker-compose up -d
