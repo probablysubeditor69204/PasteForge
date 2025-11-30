@@ -26,6 +26,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Raw text HTTP endpoint (alternative to netcat)
+import { createRawPaste } from './controllers/rawPasteController.js';
+import { pasteCreateLimiter } from './middleware/rateLimiter.js';
+app.post('/api/paste/raw', express.raw({ type: '*/*', limit: '10mb' }), pasteCreateLimiter, createRawPaste);
+
 // API Routes
 app.use('/api/paste', pasteRoutes);
 
@@ -40,6 +45,9 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 PasteForge API running on port ${PORT}`);
 });
+
+// Start netcat server
+import './netcatServer.js';
 
 export default app;
 
