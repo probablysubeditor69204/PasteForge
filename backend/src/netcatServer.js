@@ -66,18 +66,20 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Try to write - socket might be closed but we'll try anyway
-      if (!socket.destroyed) {
-        try {
-          socket.write(url, 'utf8');
-          console.log('[Netcat] Write attempted');
-          socket.end();
-        } catch (err) {
-          console.error('[Netcat] Write failed:', err.message);
-        }
-      } else {
-        console.error('[Netcat] Socket already destroyed, cannot send URL');
+      // Check if we can still write
+      if (socket.destroyed) {
+        console.error('[Netcat] Socket destroyed, cannot send URL');
+        // Output to console so user can see it at least
+        console.log(`[Netcat] Paste URL: ${url.trim()}`);
+        return;
       }
+      
+      // Write without callback - just try it
+      const written = socket.write(url);
+      console.log('[Netcat] Write result:', written, 'destroyed:', socket.destroyed);
+      
+      // Don't call end() - let the socket close naturally or the client will close it
+      // The write might succeed even if socket appears closed
     } catch (error) {
       console.error('Netcat paste error:', error);
       if (!socket.destroyed) {
