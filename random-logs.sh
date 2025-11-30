@@ -1,7 +1,7 @@
 #!/bin/bash
 # Generate random logs for testing
 
-SERVER="37.114.37.245"
+SERVER="${PASTEFORGE_SERVER:-your-server-ip}"
 PORT="99"
 
 # Random log levels

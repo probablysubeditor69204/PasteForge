@@ -1,7 +1,7 @@
 #!/bin/bash
 # Generate sample logs for testing PasteForge
 
-SERVER="37.114.37.245"
+SERVER="${PASTEFORGE_SERVER:-your-server-ip}"
 PORT="99"
 
 echo "Generating sample logs and pasting to PasteForge..."

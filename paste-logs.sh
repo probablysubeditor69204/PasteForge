@@ -2,7 +2,7 @@
 # PasteForge - Quick log pasting script
 # Usage: ./paste-logs.sh [log-file-path]
 
-SERVER="37.114.37.245"
+SERVER="${PASTEFORGE_SERVER:-your-server-ip}"
 PORT="99"
 
 if [ -z "$1" ]; then

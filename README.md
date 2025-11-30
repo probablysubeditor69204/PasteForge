@@ -277,7 +277,7 @@ JWT_SECRET=your-secret-key
 
 **Note:** Set `FRONTEND_URL` to your server's public IP or domain for netcat responses to work correctly. You can also set it as an environment variable:
 ```bash
-FRONTEND_URL=http://37.114.37.245:8080 docker-compose up -d
+FRONTEND_URL=http://your-server-ip:8080 docker-compose up -d
 ```
 
 #### Frontend (.env)

@@ -19,7 +19,7 @@ sleep 5
 
 echo ""
 echo "=== Testing Netcat Connection ==="
-echo "Test log entry $(date)" | timeout 5 nc 37.114.37.245 99
+echo "Test log entry $(date)" | timeout 5 nc ${PASTEFORGE_SERVER:-your-server-ip} 99
 
 echo ""
 echo "=== Checking Backend Logs ==="

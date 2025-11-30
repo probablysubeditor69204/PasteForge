@@ -6,58 +6,58 @@
 
 ```bash
 # Paste last 150 lines of a log file
-tail -n 150 /var/log/app.log | nc 37.114.37.245 99
+tail -n 150 /var/log/app.log | nc your-server-ip 99
 
 # Paste entire log file
-cat /var/log/app.log | nc 37.114.37.245 99
+cat /var/log/app.log | nc your-server-ip 99
 
 # Paste with real-time streaming (last 150 lines)
-tail -n 150 -f /var/log/app.log | nc 37.114.37.245 99
+tail -n 150 -f /var/log/app.log | nc your-server-ip 99
 ```
 
 ### Pterodactyl Logs
 
 ```bash
 # Today's Pterodactyl logs
-tail -n 150 /var/www/pterodactyl/storage/logs/laravel-$(date +%F).log | nc 37.114.37.245 99
+tail -n 150 /var/www/pterodactyl/storage/logs/laravel-$(date +%F).log | nc your-server-ip 99
 
 # Yesterday's logs
-tail -n 150 /var/www/pterodactyl/storage/logs/laravel-$(date -d yesterday +%F).log | nc 37.114.37.245 99
+tail -n 150 /var/www/pterodactyl/storage/logs/laravel-$(date -d yesterday +%F).log | nc your-server-ip 99
 
 # Specific date
-tail -n 150 /var/www/pterodactyl/storage/logs/laravel-2024-01-15.log | nc 37.114.37.245 99
+tail -n 150 /var/www/pterodactyl/storage/logs/laravel-2024-01-15.log | nc your-server-ip 99
 ```
 
 ### System Logs
 
 ```bash
 # System logs
-tail -n 150 /var/log/syslog | nc 37.114.37.245 99
+tail -n 150 /var/log/syslog | nc your-server-ip 99
 
 # Nginx logs
-tail -n 150 /var/log/nginx/error.log | nc 37.114.37.245 99
+tail -n 150 /var/log/nginx/error.log | nc your-server-ip 99
 
 # Apache logs
-tail -n 150 /var/log/apache2/error.log | nc 37.114.37.245 99
+tail -n 150 /var/log/apache2/error.log | nc your-server-ip 99
 
 # Docker logs
-docker logs --tail 150 container-name | nc 37.114.37.245 99
+docker logs --tail 150 container-name | nc your-server-ip 99
 ```
 
 ### Command Output
 
 ```bash
 # Process list
-ps aux | nc 37.114.37.245 99
+ps aux | nc your-server-ip 99
 
 # System info
-uname -a | nc 37.114.37.245 99
+uname -a | nc your-server-ip 99
 
 # Disk usage
-df -h | nc 37.114.37.245 99
+df -h | nc your-server-ip 99
 
 # Error output
-./script.sh 2>&1 | nc 37.114.37.245 99
+./script.sh 2>&1 | nc your-server-ip 99
 ```
 
 ### Create Alias (Optional)
@@ -66,7 +66,7 @@ Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 # PasteForge alias
-alias pasteforge='nc 37.114.37.245 99'
+alias pasteforge='nc your-server-ip 99'
 alias paste-logs='tail -n 150'
 
 # Usage:
@@ -79,7 +79,7 @@ Save as `paste-logs.sh`:
 
 ```bash
 #!/bin/bash
-SERVER="37.114.37.245"
+SERVER="your-server-ip"
 PORT="99"
 
 if [ -z "$1" ]; then
