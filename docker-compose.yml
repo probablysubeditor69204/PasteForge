@@ -18,7 +18,7 @@ services:
     container_name: pasteforge-backend
     ports:
       - "3000:3000"
-      - "99:99"
+      - "99:99"  # Netcat port for piping logs
     environment:
       - NODE_ENV=production
       - PORT=3000
