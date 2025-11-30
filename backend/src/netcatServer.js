@@ -63,26 +63,35 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Ensure socket is writable before writing
-      if (socket.writable) {
-        const written = socket.write(url, 'utf8', (err) => {
-          if (err) {
-            console.error('[Netcat] Write error:', err);
-          } else {
-            console.log('[Netcat] URL sent successfully');
-          }
-          // Close after write completes
-          socket.end();
-        });
+      // Check if socket is still connected and writable
+      if (socket.destroyed || !socket.writable) {
+        console.error('[Netcat] Socket not writable or destroyed');
+        return;
+      }
+      
+      // Write the URL
+      try {
+        const written = socket.write(url, 'utf8');
+        console.log('[Netcat] Write attempted, written:', written);
         
-        if (!written) {
-          // Buffer is full, wait for drain
+        if (written) {
+          // Data was written immediately, close after a brief delay to ensure it's sent
+          setTimeout(() => {
+            if (!socket.destroyed) {
+              socket.end();
+            }
+          }, 100);
+        } else {
+          // Buffer is full, wait for drain event
           socket.once('drain', () => {
-            socket.end();
+            console.log('[Netcat] Drain event, closing socket');
+            if (!socket.destroyed) {
+              socket.end();
+            }
           });
         }
-      } else {
-        console.error('[Netcat] Socket not writable');
+      } catch (err) {
+        console.error('[Netcat] Write exception:', err);
         socket.destroy();
       }
     } catch (error) {
@@ -108,7 +117,9 @@ const server = net.createServer((socket) => {
   });
   
   socket.on('end', () => {
-    console.log('[Netcat] Socket end event, data length:', data.length);
+    console.log('[Netcat] Socket end event, data length:', data.length, 'writable:', socket.writable);
+    // Don't close immediately, wait for response to be sent
+    socket.end = () => {}; // Prevent immediate closing
     processData();
   });
   
