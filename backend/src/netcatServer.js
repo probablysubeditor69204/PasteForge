@@ -91,8 +91,8 @@ const server = net.createServer((socket) => {
   });
 });
 
-server.listen(NETCAT_PORT, () => {
-  console.log(`📡 Netcat server listening on port ${NETCAT_PORT}`);
+server.listen(NETCAT_PORT, '0.0.0.0', () => {
+  console.log(`📡 Netcat server listening on 0.0.0.0:${NETCAT_PORT}`);
 });
 
 server.on('error', (err) => {
