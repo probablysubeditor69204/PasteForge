@@ -66,20 +66,34 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Check if we can still write
-      if (socket.destroyed) {
-        console.error('[Netcat] Socket destroyed, cannot send URL');
-        // Output to console so user can see it at least
-        console.log(`[Netcat] Paste URL: ${url.trim()}`);
-        return;
+      // Try to write regardless of socket state
+      // Sometimes we can write even if socket appears closed
+      try {
+        // Check socket state
+        if (socket.destroyed) {
+          console.error('[Netcat] Socket destroyed, URL:', url.trim());
+          // Can't write, but log it so user can see in server logs
+          return;
+        }
+        
+        // Attempt write
+        const written = socket.write(url, 'utf8', (err) => {
+          if (err) {
+            console.error('[Netcat] Write callback error:', err.message);
+          } else {
+            console.log('[Netcat] Write callback success - URL sent');
+          }
+        });
+        
+        console.log('[Netcat] Write attempted, result:', written);
+        
+        // If write succeeded, we're done
+        // Don't call end() - let client close or timeout will handle it
+      } catch (err) {
+        console.error('[Netcat] Write exception:', err.message);
+        console.log('[Netcat] Paste created but cannot send URL. Paste ID:', result.id);
+        console.log('[Netcat] URL would be:', url.trim());
       }
-      
-      // Write without callback - just try it
-      const written = socket.write(url);
-      console.log('[Netcat] Write result:', written, 'destroyed:', socket.destroyed);
-      
-      // Don't call end() - let the socket close naturally or the client will close it
-      // The write might succeed even if socket appears closed
     } catch (error) {
       console.error('Netcat paste error:', error);
       if (!socket.destroyed) {
@@ -108,19 +122,24 @@ const server = net.createServer((socket) => {
   });
   
   socket.on('end', () => {
-    console.log('[Netcat] Socket end event, data length:', data.length);
+    console.log('[Netcat] Socket end event, data length:', data.length, 'writable:', socket.writable);
     dataComplete = true;
-    // Start processing immediately
-    processData();
+    // Don't process here - the socket might already be closing
+    // Process immediately in a way that doesn't wait
+    setImmediate(() => processData());
   });
   
-  // Handle connection close
+  // Handle connection close - try to write response even if socket appears closed
   socket.on('close', (hadError) => {
     console.log('[Netcat] Socket closed, hadError:', hadError, 'isProcessing:', isProcessing);
-    // If data is complete but not processed yet, process it
+    // If we have data but haven't processed, try to process it
+    // Even if socket is closed, we might be able to write
     if (dataComplete && !isProcessing && data && data.trim().length > 0) {
-      console.log('[Netcat] Processing on close event');
-      processData();
+      console.log('[Netcat] Attempting to process on close event');
+      // Process but don't check socket state - just try to write
+      processData().catch(err => {
+        console.error('[Netcat] Process error on close:', err);
+      });
     }
   });
   
