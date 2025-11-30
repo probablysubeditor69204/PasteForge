@@ -56,9 +56,11 @@ Public REST API:
    **Note:** If you get `Command 'docker-compose' not found`, try `docker compose` (no hyphen) which is included in newer Docker versions. Alternatively, install it with `sudo apt install docker-compose`.
 
 4. **Access the application**
-   - Frontend: http://localhost
+   - Frontend: http://localhost:8080
    - Backend API: http://localhost:3000
    - Health check: http://localhost:3000/health
+   
+   **Note:** If port 80 is already in use, the frontend will run on port 8080. You can change this in `docker-compose.yml`.
 
 ### Manual Setup
 

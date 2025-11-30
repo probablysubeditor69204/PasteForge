@@ -41,7 +41,7 @@ cd PasteForge
 docker-compose up -d
 
 # 3. Access the app
-# Frontend: http://localhost
+# Frontend: http://localhost:8080
 # Backend API: http://localhost:3000
 ```
 
