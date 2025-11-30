@@ -31,6 +31,7 @@ const server = net.createServer((socket) => {
   let data = '';
   
   socket.setTimeout(30000); // 30 second timeout
+  socket.setNoDelay(true); // Disable Nagle algorithm for immediate response
   
   socket.on('data', (chunk) => {
     data += chunk.toString('utf8');
@@ -46,8 +47,9 @@ const server = net.createServer((socket) => {
   socket.on('end', async () => {
     try {
       if (!data || data.trim().length === 0) {
-        socket.write('Error: Empty content\n');
-        socket.destroy();
+        socket.write('Error: Empty content\n', () => {
+          socket.destroy();
+        });
         return;
       }
       
@@ -62,16 +64,19 @@ const server = net.createServer((socket) => {
         password: null
       });
       
-      // Return URL
+      // Return URL - wait for write to complete before closing
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
       const url = `${baseUrl}/${result.id}\n`;
       
-      socket.write(url);
-      socket.destroy();
+      socket.write(url, 'utf8', () => {
+        // Response sent, now close the connection
+        socket.end();
+      });
     } catch (error) {
       console.error('Netcat paste error:', error);
-      socket.write(`Error: ${error.message}\n`);
-      socket.destroy();
+      socket.write(`Error: ${error.message}\n`, 'utf8', () => {
+        socket.destroy();
+      });
     }
   });
   
