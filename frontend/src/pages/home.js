@@ -35,51 +35,57 @@ export function renderHome() {
   app.innerHTML = `
     <div class="min-h-screen">
       <!-- Navbar -->
-      <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <nav class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
-            <div class="flex items-center">
-              <h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                📝 PasteForge
+            <div class="flex items-center gap-2">
+              <div class="text-3xl">📝</div>
+              <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                PasteForge
               </h1>
             </div>
             <button 
               id="theme-toggle" 
-              class="btn btn-secondary"
+              class="btn btn-secondary p-2 w-10 h-10 flex items-center justify-center"
               aria-label="Toggle theme"
             >
-              <span id="theme-icon">🌙</span>
+              <span id="theme-icon" class="text-lg">🌙</span>
             </button>
           </div>
         </div>
       </nav>
 
       <!-- Main Content -->
-      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="card max-w-4xl mx-auto">
-          <h2 class="text-3xl font-bold mb-6 text-center">Create New Paste</h2>
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="card max-w-5xl mx-auto">
+          <div class="text-center mb-8">
+            <h2 class="text-4xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+              Create New Paste
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400">Share your code instantly with syntax highlighting</p>
+          </div>
           
           <form id="paste-form" class="space-y-6">
             <!-- Editor -->
             <div>
-              <label for="content" class="block text-sm font-medium mb-2">
+              <label for="content" class="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
                 Content
               </label>
               <textarea
                 id="content"
                 name="content"
-                rows="15"
-                class="input font-mono text-sm"
-                placeholder="Paste your code or text here..."
+                rows="18"
+                class="input font-mono text-sm leading-relaxed"
+                placeholder="Paste your code or text here...&#10;&#10;Example:&#10;function hello() {&#10;  console.log('Hello, World!');&#10;}"
                 required
               ></textarea>
             </div>
 
             <!-- Options Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
               <!-- Language -->
               <div>
-                <label for="language" class="block text-sm font-medium mb-2">
+                <label for="language" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                   Language
                 </label>
                 <select id="language" name="language" class="input">
@@ -91,7 +97,7 @@ export function renderHome() {
 
               <!-- Expiry -->
               <div>
-                <label for="expires" class="block text-sm font-medium mb-2">
+                <label for="expires" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                   Expires
                 </label>
                 <select id="expires" name="expires" class="input">
@@ -103,8 +109,8 @@ export function renderHome() {
 
               <!-- Password -->
               <div>
-                <label for="password" class="block text-sm font-medium mb-2">
-                  Password (optional)
+                <label for="password" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                  Password <span class="text-gray-500 dark:text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
                   type="password"
@@ -117,9 +123,9 @@ export function renderHome() {
             </div>
 
             <!-- Submit Button -->
-            <div class="flex justify-center">
-              <button type="submit" class="btn btn-primary px-8 py-3 text-lg">
-                Create Paste
+            <div class="flex justify-center pt-4">
+              <button type="submit" class="btn btn-primary px-12 py-4 text-lg font-bold">
+                ✨ Create Paste
               </button>
             </div>
           </form>
@@ -135,21 +141,21 @@ export function renderHome() {
         </div>
 
         <!-- Features -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div class="card text-center">
-            <div class="text-4xl mb-4">⚡</div>
-            <h3 class="text-xl font-bold mb-2">Lightning Fast</h3>
-            <p class="text-gray-600 dark:text-gray-400">Built for speed with Redis and optimized code</p>
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div class="card text-center hover:scale-105 transition-transform duration-200">
+            <div class="text-5xl mb-4">⚡</div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Lightning Fast</h3>
+            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Built for speed with Redis and optimized code</p>
           </div>
-          <div class="card text-center">
-            <div class="text-4xl mb-4">🔐</div>
-            <h3 class="text-xl font-bold mb-2">Secure</h3>
-            <p class="text-gray-600 dark:text-gray-400">Optional password protection and auto-expiry</p>
+          <div class="card text-center hover:scale-105 transition-transform duration-200">
+            <div class="text-5xl mb-4">🔐</div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Secure</h3>
+            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Optional password protection and auto-expiry</p>
           </div>
-          <div class="card text-center">
-            <div class="text-4xl mb-4">🎨</div>
-            <h3 class="text-xl font-bold mb-2">Beautiful UI</h3>
-            <p class="text-gray-600 dark:text-gray-400">Clean, modern interface with dark mode</p>
+          <div class="card text-center hover:scale-105 transition-transform duration-200">
+            <div class="text-5xl mb-4">🎨</div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Beautiful UI</h3>
+            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Clean, modern interface with dark mode</p>
           </div>
         </div>
       </main>
