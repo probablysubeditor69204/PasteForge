@@ -63,10 +63,28 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      socket.write(url, 'utf8', () => {
-        // Response sent, now close the connection
-        socket.end();
-      });
+      // Ensure socket is writable before writing
+      if (socket.writable) {
+        const written = socket.write(url, 'utf8', (err) => {
+          if (err) {
+            console.error('[Netcat] Write error:', err);
+          } else {
+            console.log('[Netcat] URL sent successfully');
+          }
+          // Close after write completes
+          socket.end();
+        });
+        
+        if (!written) {
+          // Buffer is full, wait for drain
+          socket.once('drain', () => {
+            socket.end();
+          });
+        }
+      } else {
+        console.error('[Netcat] Socket not writable');
+        socket.destroy();
+      }
     } catch (error) {
       console.error('Netcat paste error:', error);
       const errorMsg = `Error: ${error.message}\n`;
