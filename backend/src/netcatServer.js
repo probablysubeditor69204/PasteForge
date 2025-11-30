@@ -30,9 +30,11 @@ function detectLanguage(content) {
 const server = net.createServer((socket) => {
   let data = '';
   let isProcessing = false;
+  let dataComplete = false;
   
   socket.setTimeout(30000); // 30 second timeout
   socket.setNoDelay(true); // Disable Nagle algorithm for immediate response
+  socket.setKeepAlive(true, 1000); // Keep connection alive
   
   const processData = async () => {
     if (isProcessing) return;
@@ -40,9 +42,10 @@ const server = net.createServer((socket) => {
     
     try {
       if (!data || data.trim().length === 0) {
-        socket.write('Error: Empty content\n', 'utf8', () => {
-          socket.destroy();
-        });
+        if (!socket.destroyed) {
+          socket.write('Error: Empty content\n', 'utf8');
+          socket.end();
+        }
         return;
       }
       
@@ -57,42 +60,34 @@ const server = net.createServer((socket) => {
         password: null
       });
       
-      // Return URL - wait for write to complete before closing
+      // Return URL
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
       const url = `${baseUrl}/${result.id}\n`;
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Write response immediately - don't check writable, just try
-      // The socket might still accept writes even if writable is false
-      try {
-        // Force write - socket might accept it even if not "writable"
-        socket.write(url, (err) => {
-          if (err) {
-            console.error('[Netcat] Write error:', err.message);
-          } else {
-            console.log('[Netcat] URL sent successfully');
-          }
-        });
-        
-        // Force flush and close
-        socket.end();
-      } catch (err) {
-        console.error('[Netcat] Write exception:', err.message);
-        // Try to send anyway
+      // Try to write - socket might be closed but we'll try anyway
+      if (!socket.destroyed) {
         try {
-          socket.write(url);
+          socket.write(url, 'utf8');
+          console.log('[Netcat] Write attempted');
           socket.end();
-        } catch (e) {
-          console.error('[Netcat] Fallback write failed:', e.message);
+        } catch (err) {
+          console.error('[Netcat] Write failed:', err.message);
         }
+      } else {
+        console.error('[Netcat] Socket already destroyed, cannot send URL');
       }
     } catch (error) {
       console.error('Netcat paste error:', error);
-      const errorMsg = `Error: ${error.message}\n`;
-      socket.write(errorMsg, 'utf8', () => {
-        socket.destroy();
-      });
+      if (!socket.destroyed) {
+        try {
+          socket.write(`Error: ${error.message}\n`, 'utf8');
+          socket.end();
+        } catch (e) {
+          console.error('[Netcat] Error write failed:', e.message);
+        }
+      }
     }
   };
   
@@ -102,24 +97,27 @@ const server = net.createServer((socket) => {
     
     // Limit to 10MB
     if (data.length > 10 * 1024 * 1024) {
-      socket.write('Error: Content too large (max 10MB)\n', 'utf8', () => {
+      if (!socket.destroyed) {
+        socket.write('Error: Content too large (max 10MB)\n', 'utf8');
         socket.end();
-      });
+      }
       return;
     }
   });
   
   socket.on('end', () => {
-    console.log('[Netcat] Socket end event, data length:', data.length, 'writable:', socket.writable, 'destroyed:', socket.destroyed);
-    // Process data immediately - don't wait
+    console.log('[Netcat] Socket end event, data length:', data.length);
+    dataComplete = true;
+    // Start processing immediately
     processData();
   });
   
   // Handle connection close
   socket.on('close', (hadError) => {
-    console.log('[Netcat] Socket closed, hadError:', hadError, 'data length:', data.length, 'isProcessing:', isProcessing);
-    if (!isProcessing && data && data.trim().length > 0) {
-      console.log('[Netcat] Processing data on close event');
+    console.log('[Netcat] Socket closed, hadError:', hadError, 'isProcessing:', isProcessing);
+    // If data is complete but not processed yet, process it
+    if (dataComplete && !isProcessing && data && data.trim().length > 0) {
+      console.log('[Netcat] Processing on close event');
       processData();
     }
   });
