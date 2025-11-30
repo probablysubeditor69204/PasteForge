@@ -78,6 +78,7 @@ const server = net.createServer((socket) => {
   
   socket.on('data', (chunk) => {
     data += chunk.toString('utf8');
+    console.log('[Netcat] Received data chunk, total length:', data.length);
     
     // Limit to 10MB
     if (data.length > 10 * 1024 * 1024) {
@@ -89,19 +90,17 @@ const server = net.createServer((socket) => {
   });
   
   socket.on('end', () => {
+    console.log('[Netcat] Socket end event, data length:', data.length);
     processData();
   });
   
-  // Also handle when readable ends (for cases where end doesn't fire)
-  socket.on('close', () => {
+  // Handle connection close
+  socket.on('close', (hadError) => {
+    console.log('[Netcat] Socket closed, hadError:', hadError, 'data length:', data.length, 'isProcessing:', isProcessing);
     if (!isProcessing && data && data.trim().length > 0) {
+      console.log('[Netcat] Processing data on close event');
       processData();
     }
-  });
-  
-  // Handle connection close
-  socket.on('close', () => {
-    // Connection closed
   });
   
   socket.on('timeout', () => {
