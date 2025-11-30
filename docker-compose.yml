@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: pasteforge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - pasteforge-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pasteforge-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379
+      - FRONTEND_URL=http://localhost
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-key}
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - pasteforge-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pasteforge-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=/api
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - pasteforge-network
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  pasteforge-network:
+    driver: bridge
+
