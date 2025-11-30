@@ -63,49 +63,28 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Check socket state
-      if (socket.destroyed) {
-        console.error('[Netcat] Socket already destroyed');
-        return;
-      }
-      
-      // Try to write - even if writable is false, we might still be able to write
+      // Write response immediately - don't check writable, just try
+      // The socket might still accept writes even if writable is false
       try {
-        // Use write with callback to ensure it completes
-        const canWrite = socket.write(url, 'utf8', (err) => {
+        // Force write - socket might accept it even if not "writable"
+        socket.write(url, (err) => {
           if (err) {
-            console.error('[Netcat] Write callback error:', err);
+            console.error('[Netcat] Write error:', err.message);
           } else {
-            console.log('[Netcat] Write callback success');
+            console.log('[Netcat] URL sent successfully');
           }
-          // Don't close here - let it close naturally or after timeout
         });
         
-        console.log('[Netcat] Write result:', canWrite, 'writable:', socket.writable);
-        
-        // If write returned false, buffer is full - wait for drain
-        if (!canWrite) {
-          socket.once('drain', () => {
-            console.log('[Netcat] Drain event fired');
-            if (!socket.destroyed) {
-              socket.end();
-            }
-          });
-        } else {
-          // Write succeeded, give it a moment then close
-          setImmediate(() => {
-            if (!socket.destroyed && socket.writable) {
-              socket.end();
-            }
-          });
-        }
+        // Force flush and close
+        socket.end();
       } catch (err) {
-        console.error('[Netcat] Write exception:', err);
-        // Try one more time with direct write
+        console.error('[Netcat] Write exception:', err.message);
+        // Try to send anyway
         try {
           socket.write(url);
+          socket.end();
         } catch (e) {
-          console.error('[Netcat] Second write attempt failed:', e);
+          console.error('[Netcat] Fallback write failed:', e.message);
         }
       }
     } catch (error) {
