@@ -29,25 +29,18 @@ function detectLanguage(content) {
 
 const server = net.createServer((socket) => {
   let data = '';
+  let isProcessing = false;
   
   socket.setTimeout(30000); // 30 second timeout
   socket.setNoDelay(true); // Disable Nagle algorithm for immediate response
   
-  socket.on('data', (chunk) => {
-    data += chunk.toString('utf8');
+  const processData = async () => {
+    if (isProcessing) return;
+    isProcessing = true;
     
-    // Limit to 10MB
-    if (data.length > 10 * 1024 * 1024) {
-      socket.write('Error: Content too large (max 10MB)\n');
-      socket.end();
-      return;
-    }
-  });
-  
-  socket.on('end', async () => {
     try {
       if (!data || data.trim().length === 0) {
-        socket.write('Error: Empty content\n', () => {
+        socket.write('Error: Empty content\n', 'utf8', () => {
           socket.destroy();
         });
         return;
@@ -68,15 +61,41 @@ const server = net.createServer((socket) => {
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
       const url = `${baseUrl}/${result.id}\n`;
       
+      console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
+      
       socket.write(url, 'utf8', () => {
         // Response sent, now close the connection
         socket.end();
       });
     } catch (error) {
       console.error('Netcat paste error:', error);
-      socket.write(`Error: ${error.message}\n`, 'utf8', () => {
+      const errorMsg = `Error: ${error.message}\n`;
+      socket.write(errorMsg, 'utf8', () => {
         socket.destroy();
       });
+    }
+  };
+  
+  socket.on('data', (chunk) => {
+    data += chunk.toString('utf8');
+    
+    // Limit to 10MB
+    if (data.length > 10 * 1024 * 1024) {
+      socket.write('Error: Content too large (max 10MB)\n', 'utf8', () => {
+        socket.end();
+      });
+      return;
+    }
+  });
+  
+  socket.on('end', () => {
+    processData();
+  });
+  
+  // Also handle when readable ends (for cases where end doesn't fire)
+  socket.on('close', () => {
+    if (!isProcessing && data && data.trim().length > 0) {
+      processData();
     }
   });
   
