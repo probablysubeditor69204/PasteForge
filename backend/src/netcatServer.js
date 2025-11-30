@@ -63,36 +63,50 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Check if socket is still connected and writable
-      if (socket.destroyed || !socket.writable) {
-        console.error('[Netcat] Socket not writable or destroyed');
+      // Check socket state
+      if (socket.destroyed) {
+        console.error('[Netcat] Socket already destroyed');
         return;
       }
       
-      // Write the URL
+      // Try to write - even if writable is false, we might still be able to write
       try {
-        const written = socket.write(url, 'utf8');
-        console.log('[Netcat] Write attempted, written:', written);
+        // Use write with callback to ensure it completes
+        const canWrite = socket.write(url, 'utf8', (err) => {
+          if (err) {
+            console.error('[Netcat] Write callback error:', err);
+          } else {
+            console.log('[Netcat] Write callback success');
+          }
+          // Don't close here - let it close naturally or after timeout
+        });
         
-        if (written) {
-          // Data was written immediately, close after a brief delay to ensure it's sent
-          setTimeout(() => {
+        console.log('[Netcat] Write result:', canWrite, 'writable:', socket.writable);
+        
+        // If write returned false, buffer is full - wait for drain
+        if (!canWrite) {
+          socket.once('drain', () => {
+            console.log('[Netcat] Drain event fired');
             if (!socket.destroyed) {
               socket.end();
             }
-          }, 100);
+          });
         } else {
-          // Buffer is full, wait for drain event
-          socket.once('drain', () => {
-            console.log('[Netcat] Drain event, closing socket');
-            if (!socket.destroyed) {
+          // Write succeeded, give it a moment then close
+          setImmediate(() => {
+            if (!socket.destroyed && socket.writable) {
               socket.end();
             }
           });
         }
       } catch (err) {
         console.error('[Netcat] Write exception:', err);
-        socket.destroy();
+        // Try one more time with direct write
+        try {
+          socket.write(url);
+        } catch (e) {
+          console.error('[Netcat] Second write attempt failed:', e);
+        }
       }
     } catch (error) {
       console.error('Netcat paste error:', error);
@@ -117,9 +131,8 @@ const server = net.createServer((socket) => {
   });
   
   socket.on('end', () => {
-    console.log('[Netcat] Socket end event, data length:', data.length, 'writable:', socket.writable);
-    // Don't close immediately, wait for response to be sent
-    socket.end = () => {}; // Prevent immediate closing
+    console.log('[Netcat] Socket end event, data length:', data.length, 'writable:', socket.writable, 'destroyed:', socket.destroyed);
+    // Process data immediately - don't wait
     processData();
   });
   
