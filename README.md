@@ -133,6 +133,29 @@ Public REST API:
 
 ## 📖 API Documentation
 
+### Netcat Usage (Command Line)
+
+Pipe logs or text directly to PasteForge using netcat:
+
+```bash
+# Pipe a log file
+tail -n 150 /var/log/app.log | nc your-server.com 99
+
+# Pipe command output
+ps aux | nc your-server.com 99
+
+# Pipe from stdin
+cat file.txt | nc your-server.com 99
+
+# Real-time log streaming
+tail -f /var/log/app.log | nc your-server.com 99
+```
+
+The server will return the paste URL automatically:
+```
+http://your-server.com:8080/XyT12AbC
+```
+
 ### Create Paste
 
 **Endpoint:** `POST /api/paste`
