@@ -66,25 +66,25 @@ const server = net.createServer((socket) => {
       
       console.log(`[Netcat] Created paste ${result.id}, sending URL: ${url}`);
       
-      // Write immediately - socket might still accept it
-      // Even if writable is false, we might be able to write
+      // Write immediately - try even if socket appears closed
+      // The socket might still accept the write
       try {
-        if (!socket.destroyed) {
-          // Try to write - don't check writable, just try
-          socket.write(url);
-          console.log('[Netcat] URL written to socket');
-          // Give it a moment to send, then close
-          setTimeout(() => {
-            if (!socket.destroyed) {
-              socket.end();
-            }
-          }, 50);
-        } else {
-          console.error('[Netcat] Socket destroyed before write. Paste ID:', result.id);
-          console.log('[Netcat] URL:', url.trim());
-        }
+        // Don't check destroyed - just try to write
+        // Sometimes we can write even to a "destroyed" socket
+        socket.write(url, (err) => {
+          if (err) {
+            console.error('[Netcat] Write callback error:', err.message);
+            console.log('[Netcat] Paste created but URL not sent. ID:', result.id);
+            console.log('[Netcat] URL:', url.trim());
+          } else {
+            console.log('[Netcat] URL successfully sent:', url.trim());
+          }
+        });
+        
+        // Don't call end() - let the socket close naturally
+        // The write might queue and send even if socket is closing
       } catch (err) {
-        console.error('[Netcat] Write failed:', err.message);
+        console.error('[Netcat] Write exception:', err.message);
         console.log('[Netcat] Paste ID:', result.id, 'URL:', url.trim());
       }
     } catch (error) {
